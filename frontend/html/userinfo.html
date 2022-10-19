@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	{% load static %}
+	<script type="text/javascript" src = "{% static 'jQuery/jquery-1.12.4.js' %}"></script>
+	<script type = "text/javascript" src = "{% static 'bootstrap-3.4.1-dist/js/bootstrap.min.js' %}"></script>
+	<link rel="stylesheet" href="{% static 'bootstrap-3.4.1-dist/css/bootstrap.min.css' %}">
+	<link rel="stylesheet" href="{% static 'bootstrap-3.4.1-dist/css/bootstrap-theme.min.css' %}">
+	<title>个人信息更改页</title>
+</head>
+<body>
+
+	<div class="container">
+		{# 导航条 #}
+		<div class="row">
+			<div class="col-sm-12">
+				<ul class="nav nav-pills nav-justified">
+					<li role="presentation"><a href="{% url 'main' %}">主页</a></li>
+					<li role="presentation"><a href="{% url 'music' %}">音乐</a></li>
+					<li role="presentation"><a href="{% url 'image' %}">图片</a></li>
+					<li role="presentation"><a href="{% url 'video' %}">视频</a></li>
+					<li role="presentation"><a href="{% url 'document' %}">文档</a></li>
+					<li role="presentation"><a href="{% url 'homework' %}">作业</a></li>
+				</ul>
+			</div>
+		</div>
+		{# 背景板 #}
+		{# 头像 #}
+		<div class="row">
+			<div class="col-md-3 col-md-offset-4">
+				<img src="{% static "images/django2.jpg" %}" alt="加载失败" class="img-responsive img-thumbnail  text-center">
+			</div>
+		</div>
+
+
+		{# 用户名与密码 #}
+		<div class="row">
+			<div class="col-md-5 col-md-offset-4">
+				<form>
+					<div class="form-group">
+						<label for="user_name">用户名</label>
+						<input type="email" class="form-control" id="user_name" name = "user_name" placeholder="用户名" disabled="true">
+					</div>
+					<div class="form-group">
+						<label for="user_password">密码</label>
+						<input type="password" class="form-control" id="user_password" name="user_password" placeholder="密码" disabled="true">
+					</div>
+				</form>
+			</div>
+		</div>
+
+
+		<div class="row">
+			<div class="col-md-5 col-md-offset-5">
+				<div class="btn-group center-block" role="group" aria-label="...">
+					<button type="button" class="btn btn-default" id="modify">修改</button>
+					<button type="button" class="btn btn-default" id="confirm">确认</button>
+					<button type="button" class="btn btn-default" id="logout">登出</button>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+	<script type = "text/javascript">
+	$('#logout').click(function(event) {
+		$.ajax({
+			url: '/home/logout',
+			type: 'GET',
+			dataType: 'json',
+				//data: {param1: 'value1'},
+				success:function(msg){
+					if(msg){
+						window.location.href = msg.url;
+					}
+				}
+			});
+	});
+	$('#modify').click(function(event) {
+		console.log("modify clicked!");
+		$('#user_name').removeAttr('disabled');
+		$('#user_password').removeAttr('disabled');
+	});
+	$('#confirm').click(function(event) {
+		if($('#user_name').val()=='' || $('#user_password').val()==''){
+			alert("用户名和密码不能为空！");
+			return false;
+		}
+		$.ajax({
+			url: '/home/modifyUserInfo',
+			type: 'POST',
+			dataType: 'json',
+			data: {'user_name': $('#user_name').val(),
+				'user_password':$('#user_password').val()},
+			success: function(data){
+				if(data['code']==1){
+					 window.location.href = data['url'];
+				}else if(data['code']==-1){
+					alert("用户名已被占用！");
+				}else{
+					alert("出现未知错误，请联系管理员！");
+				}
+			},
+			error: function(data){
+				alert("用户名已被占用！");
+				console.log("修改账户发送失败！");
+			}
+		});
+	});
+	</script>
+</body>
+</html>

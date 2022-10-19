@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	{% load static %}
+	<script type="text/javascript" src = "{% static 'jQuery/jquery-1.12.4.js' %}"></script>
+	<script type = "text/javascript" src = "{% static 'bootstrap-3.4.1-dist/js/bootstrap.min.js' %}"></script>
+	<link rel="stylesheet" href="{% static 'bootstrap-3.4.1-dist/css/bootstrap.min.css' %}">
+	<link rel="stylesheet" href="{% static 'bootstrap-3.4.1-dist/css/bootstrap-theme.min.css' %}">
+	<title>作业</title>
+</head>
+<body>
+	<div class="container">
+		{# 导航条 #}
+		<div class="row">
+			<div class="col-sm-12">
+				<ul class="nav nav-pills nav-justified">
+					<li role="presentation"><a href="{% url 'main' %}">主页</a></li>
+					<li role="presentation"><a href="{% url 'music' %}">音乐</a></li>
+					<li role="presentation"><a href="{% url 'image' %}">图片</a></li>
+					<li role="presentation"><a href="{% url 'video' %}">视频</a></li>
+					<li role="presentation"><a href="{% url 'document' %}">文档</a></li>
+					<li role="presentation" class="active"><a href="{% url 'homework' %}">作业</a></li>
+				</ul>
+			</div>
+		</div>
+
+
+		
+		<div class="row">
+			{# 左边的科目列表 #}
+			<div class="col-md-4">
+				{# 科目1 #}
+				<div class="row">
+					<div class="col-md-4">
+						<p class="text-center">web开发</p>
+					</div>
+				</div>
+				{# 科目2 #}
+				<div class="row">
+					<div class="col-md-4">
+						<p class="text-center">互动媒体技术</p>
+					</div>
+				</div>
+				{# 科目3 #}
+				<div class="row">
+					<div class="col-md-4">
+						<p class="text-center">计算机图形学</p>
+					</div>
+				</div>
+				{# 科目4 #}
+				<div class="row">
+					<div class="col-md-4">
+						<p class="text-center">Python程序设计</p>
+					</div>
+				</div>
+			</div>
+
+
+			{# 右边的画面 #}
+			<div class="col-md-8">
+			</div>
+		</div>
+
+
+
+
+	</div>
+</body>
+</html>

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	{% load static %}
+	<script type="text/javascript" src = "{% static 'jQuery/jquery-1.12.4.js' %}"></script>
+	<script type = "text/javascript" src = "{% static 'bootstrap-3.4.1-dist/js/bootstrap.min.js' %}"></script>
+	<link rel="stylesheet" href="{% static 'bootstrap-3.4.1-dist/css/bootstrap.min.css' %}">
+	<link rel="stylesheet" href="{% static 'bootstrap-3.4.1-dist/css/bootstrap-theme.min.css' %}">
+	<title>文档</title>
+</head>
+<body>
+	<div class="modal fade" tabindex="-1" role="dialog" id="myModal">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">警告</h4>
+				</div>
+				<div class="modal-body">
+					<p>是否保存信息？</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal" id="noStorage">不保存</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal" id="storage">保存</button>
+				</div>
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+
+
+	<div class="modal fade" tabindex="-1" role="dialog" id="myModal2">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">警告</h4>
+				</div>
+				<div class="modal-body">
+					<p>确定删除该文章？</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal" id="deleteConfirm">确定删除</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal" id="deleteCancel">取消删除</button>
+				</div>
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+
+
+	<div class="modal fade" tabindex="-1" role="dialog" id="myModal3">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">修改文章</h4>
+				</div>
+				<div class="modal-body">
+					<div class="input-group">
+						<span class="input-group-addon">文章标题</span>
+						<input type="text" class="form-control" placeholder="标题" aria-describedby="basic-addon1" id="modifyTitle" name="title">
+					</div>
+					<div class="input-group">
+						<span class="input-group-addon">文章作者</span>
+						<input type="text" class="form-control" placeholder="作者" aria-describedby="basic-addon2" id="modifyAuthor" name="author">
+					</div>
+					<div class="form-group">
+						<span class="input-group-addon">正文</span>
+						<textarea class="form-control" rows="10" id="modifyMainBody" name="mainBody"></textarea>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal" id="modifyConfirm">确认修改</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal" id="modifyCancel">取消修改</button>
+				</div>
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+
+
+	<div class="modal fade" tabindex="-1" role="dialog" id="myModal4">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">搜索栏</h4>
+				</div>
+				<div class="modal-body">
+					<div class="input-group">
+						<span class="input-group-addon">关键词</span>
+						<input type="text" class="form-control" placeholder="请输入关键词" aria-describedby="basic-addon1" id="keyWord">
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal" id="searchConfirm">确认搜索</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal" id="searchCancel">取消搜索</button>
+				</div>
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+
+
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-12">
+				<ul class="nav nav-pills nav-justified">
+					<li role="presentation"><a href="{% url 'main' %}">主页</a></li>
+					<li role="presentation"><a href="{% url 'music' %}">音乐</a></li>
+					<li role="presentation"><a href="{% url 'image' %}">图片</a></li>
+					<li role="presentation"><a href="{% url 'video' %}">视频</a></li>
+					<li role="presentation"  class="active"><a href="{% url 'document' %}">文档</a></li>
+					<li role="presentation"><a href="{% url 'homework' %}">作业</a></li>
+				</ul>
+			</div>
+		</div>
+
+
+
+		<div class="row">
+			<div class="col-md-3">
+				<div class="list-group" id="nameList">
+				</div>
+			</div>
+
+			<div class="col-md-7" id="contents" >
+				<div id="article">
+				</div>
+				<label for="article">#</label>
+				<div id="editor" style="display:none;">	
+					<form role="form" action="{% url 'addDocument' %}" target="_self" id="articleForm" method="post">
+						<div class="input-group">
+							<span class="input-group-addon">文章标题</span>
+							<input type="text" class="form-control" placeholder="标题" aria-describedby="basic-addon1" id="title" name="title">
+						</div>
+						<div class="input-group">
+							<span class="input-group-addon">文章作者</span>
+							<input type="text" class="form-control" placeholder="作者" aria-describedby="basic-addon2" id="author" name="author">
+						</div>
+						<div class="form-group">
+							<span class="input-group-addon">正文</span>
+							<textarea class="form-control" rows="10" id="mainBody" name="mainBody"></textarea>
+						</div>
+						<input type="text" style="display:none" id="date" name="date" />
+						<button type="button" class="btn btn-default" id="cancelBtn" data-toggle="modal" data-target="#myModal">取消</button>
+						<button type="submit" class="btn btn-default">提交</button>
+					</form>
+				</div>
+			</div>
+
+			{# 右边的按钮组 #}
+			<div class="col-md-2">
+				<div class="btn-group btn-group-vertical" role="group">
+					<div class="btn-group"><button type="button" class="btn btn-default" id="addBtn">增加</button></div>
+					<div class="btn-group"><button type="button" class="btn btn-default" id="deleteBtn">删除</button></div>
+					<div class="btn-group"><button type="button" class="btn btn-default" id="modifyBtn">修改</button></div>
+					<div class="btn-group"><button type="button" class="btn btn-default" id="searchBtn">查找</button></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+	var docUrl;
+	var docContent;
+	var docAuthor;
+	var docTitle;
+	var docDate;
+	var docLen = 0;
+	var docIdx = -1;
+	$.ajax({
+		url: '/home/getDocument',
+		type: 'GET',
+		dataType: 'json',
+		success: function(data){
+			//添加信息到nameList和article
+			docUrl = data;
+			docLen = Object.keys(data).length;
+			addNameList();
+			addBtnList();
+		}
+	});
+	//window.history.replaceState(null, null, window.location.href);
+	$('#addBtn').click(function(event) {
+		$('#article').hide('400', function() {
+
+		});
+		$('#contents label').hide('400', function() {
+
+		});
+		$('#editor').show('400', function() {
+
+		});
+	});
+	$('#noStorage').click(function(event) {
+		$('#editor').hide('400', function() {
+			$('#title,#author,#mainBody').val('');
+		});
+		$('#article').show('400', function() {
+		});
+		$('#contents label').show('400', function() {
+		});
+	});
+	$('#storage').click(function(event) {
+		$('#editor').hide('400', function() {
+		});
+		$('#article').show('400', function() {
+		});
+		$('#contents label').show('400', function() {
+		});
+	});
+	$('#articleForm').on('submit', function(event) {
+		//event.preventDefault();
+		if($('#title').val()=='' || $('#author').val()==''){
+			alert("标题与作者不能为空！");
+			return false;
+		}
+		if($('#mainBody').val()==''){
+			alert("请填入内容!");
+			return false;
+		}
+		//查看提交的文章名是否重复
+		var thisTitle = $('#title').val();
+		for(var i=0;i<docLen;i++){
+			if(docUrl[i]['title']==thisTitle){
+				alert("文章名不能重复!");
+				return false;
+			}
+		}
+		var d = new Date(),
+		str = '';
+			str += d.getFullYear() + '-'; //获取当前年份 
+			str += d.getMonth() + 1 + '-'; //获取当前月份（0——11） 
+			str += d.getDate();
+			$('#date').val(str)
+			$(this)[0].submit();
+			$('#noStorage').click();
+		});
+	$('#deleteBtn').click(function(event) {
+		if($('#editor')[0].style.display != 'none'){
+			alert('请先关闭编辑界面');
+		}else{
+			$('#myModal2').modal('show');
+		}
+	});
+	$('#deleteConfirm').click(function(event) {
+		if($('#editor')[0].style.display=='none'){
+			$.ajax({
+				url: '/home/deleteDocument',
+				type: 'POST',
+				dataType: 'json',
+				data: {'documetIndex': docIdx,
+				'title' : docUrl[docIdx]['title'],
+			},
+			success: function(data){
+				if(data['code']==0){
+					console.log("删除成功！");
+					window.location.reload();
+				}else if(data['code']==-1){
+					console.log("删除失败！");
+				}else{
+					console.log("未知错误！");
+				}
+			},
+			error: function(){
+				console.log("发送删除失败！");
+			},
+		});
+		}
+	});
+	$('#deleteCancel').click(function(event) {
+	});
+	$('#modifyBtn').click(function(event) {
+		if(docIdx<0){
+			alert("请先选择文章！");
+			return false;
+		}
+		$('#myModal3').modal('show');
+		$('#modifyTitle').val(docUrl[docIdx]['title']);
+		$('#modifyAuthor').val(docUrl[docIdx]['author']);
+		$('#modifyMainBody').val(docUrl[docIdx]['content']);
+	});
+	$('#modifyConfirm').click(function(event) {
+		var d = new Date(),
+		str = '';
+		str += d.getFullYear() + '-'; //获取当前年份 
+		str += d.getMonth() + 1 + '-'; //获取当前月份（0——11） 
+		str += d.getDate();
+		console.log("date is "+str);
+		$.ajax({
+			url: '/home/modifyDocument',
+			type: 'POST',
+			dataType: 'json',
+			data: { 'originalTitle':docUrl[docIdx]['title'],
+			'title':$('#modifyTitle').val(),
+			'author':$('#modifyAuthor').val(),
+			'content':$('#modifyMainBody').val(),
+			'date':str},
+			success: function(data){
+				if(data['code']==0){
+					console.log("修改成功！");
+					window.location.reload();
+				}else if(data['code']==-1){
+					console.log("修改失败！");
+				}else{
+					console.log("未知错误！");
+				}
+			},
+			error: function(){
+				console.log("发送修改失败！");
+			}
+		});
+	});
+	$('#searchBtn').click(function(event) {
+		$('#myModal4').modal('show');
+	});
+	$('#searchConfirm').click(function(event) {
+		if($('#keyWord').val()==''){
+			//alert("关键词不能为空！");
+			window.location.reload();
+		}else{
+			$.ajax({
+				url: '/home/searchDocument',
+				type: 'POST',
+				dataType: 'json',
+				data: {'keyWord': $('#keyWord').val()},
+				success: function(data){
+					console.log("搜索成功！");
+					$('#keyWord').val('');
+					$('#nameList').empty();
+					docUrl = data;
+					docLen = Object.keys(data).length;
+					addNameList();
+					addBtnList();
+				},
+				error: function(){
+					console.log("搜索发送失败！");
+				}
+			});
+		}
+	});
+	var addNameList = function(){
+		for(var i = 0;i<docLen;i++){
+			var btn = '<button type="button" class="list-group-item"'
+			+'data-article-index="'
+			+i+
+			'"+>'+
+			docUrl[i]['title']+
+			'--'+
+			docUrl[i]['author']+
+			'</button>';
+			var cnt = docUrl[i]['content'];
+			$('#nameList').append(btn);
+		}
+	};
+	//文章列表的按钮
+	var addBtnList = function(){
+		$('#nameList button').on('click', function(event) {
+			console.log($(this).attr('data-article-index'));
+			$('#article').text(docUrl[$(this).attr('data-article-index')]['content']);
+			$('#contents label').text('最后修改时间: '+docUrl[$(this).attr('data-article-index')]['date']);
+			docIdx = $(this).attr('data-article-index');
+			//console.log('state is '+$('#editor')[0].style.display);
+		});
+	};
+
+	</script>
+</body>
+</html>

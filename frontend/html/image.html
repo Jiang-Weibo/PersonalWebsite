@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	{% load static %}
+	<script type="text/javascript" src = "{% static 'jQuery/jquery-1.12.4.js' %}"></script>
+	<script type = "text/javascript" src = "{% static 'bootstrap-3.4.1-dist/js/bootstrap.min.js' %}"></script>
+	<script type = "text/javascript" src="{% static 'plugins/fileinput.js' %}"></script>
+	<script type = "text/javascript" src="{% static "plugins/jqthumb.js" %}"></script>
+	<link rel="stylesheet" href="{% static 'bootstrap-3.4.1-dist/css/bootstrap.min.css' %}">
+	<link rel="stylesheet" href="{% static 'bootstrap-3.4.1-dist/css/bootstrap-theme.min.css' %}">
+	<link rel="stylesheet" href="{% static "plugins/fileinput.css" %}">
+	<title>图片</title>
+	<script>
+	function cutImg(){
+		$('#img').jqthumb({
+			classname      : 'jqthumb',
+			width          : '100%',//宽度
+            height         : '300px',//高度
+            position       : { y: '80%', x: '50%'},//从图片的中间开始产生缩略图
+        });
+	}
+	</script>
+</head>
+<body>
+
+	<div class="container">
+		{# 导航栏 #}
+		<div class="row">
+			<div class="col-sm-12">
+				<ul class="nav nav-pills nav-justified">
+					<li role="presentation"><a href="{% url 'main' %}">主页</a></li>
+					<li role="presentation"><a href="{% url 'music' %}">音乐</a></li>
+					<li role="presentation"  class="active"><a href="{% url 'image' %}">图片</a></li>
+					<li role="presentation"><a href="{% url 'video' %}">视频</a></li>
+					<li role="presentation"><a href="{% url 'document' %}">文档</a></li>
+					<li role="presentation"><a href="{% url 'homework' %}">作业</a></li>
+				</ul>
+			</div>
+		</div>
+
+
+		{# 显示大图 #}
+		<div class="row">
+			{# 图片区域 #}
+			<div class="col-md-12">
+				<!-- 需要先裁剪 -->
+				<img id="img" src="{% static "images/YOURNAME1.jpg" %}" alt="加载失败"  style="width:100%;height:500px;">
+			</div>
+		</div>
+
+
+
+		{# 按钮组用来滚动图片 #}
+		<div class="row">
+			<div class="col-md-12 ">
+				<div class="btn-group btn-group-justified">
+					<div class="btn-group">
+						<button type="button" class="btn btn-default" id="prevBtn" >上一张</button>
+					</div>
+					<div class="btn-group">
+						<button type="button" class="btn btn-default" id="pauseBtn">暂停</button>
+					</div>
+					<div class="btn-group">
+						<button type="button" class="btn btn-default" id="nextBtn">下一张</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="file-loading">
+			<input id="fileinput" type="file" multiple name="files">
+		</div>
+	</div>
+
+
+	<script type="text/javascript">
+	$(function(){
+		//初始化fileinput
+		$('#fileinput').fileinput({
+			uploadUrl:"/home/addImage",
+			maxFileCount: 5,
+			uploadExtraData:{},
+		});
+
+
+		var flag = true;
+		var urlLen;
+		var urls;
+		var imgIndex=0;
+		//首先请求获得所有图片
+		$.ajax({
+			url: '/home/getImage',
+			type: 'GET',
+			success:function(msg) {
+				urls = msg;
+				urlLen = Object.keys(urls).length;
+				console.log('len = '+urlLen);
+			},
+			error:function() {
+				console.log('error!');
+			}
+		});
+		
+		
+		$('#prevBtn').click(function(event) {
+				//console.log('123');
+				prevImg();
+				console.log('index = '+imgIndex);
+			});	
+		$('#nextBtn').click(function(event) {
+			nextImg();
+			console.log('index = '+imgIndex);
+		});
+		$('#pauseBtn').click(function(){
+			pauseImg();
+		})
+
+		var prevImg = function(){
+			imgIndex = (imgIndex+1)%urlLen;
+			changeImg(imgIndex);
+		};
+
+		var nextImg = function(){
+			imgIndex = (imgIndex-1)%urlLen;
+			if(imgIndex<0){
+				imgIndex = urlLen-1;
+			}
+			changeImg(imgIndex);
+		};
+
+		var pauseImg = function(){
+			if(flag==true){
+				flag=false;
+				clearTimeout(timer);
+			}else{
+				flag=true;
+				timer = setTimeout(function(){
+					nextImg();
+				},5000);
+			}
+		}
+
+		var timer = setTimeout(function(){
+			nextImg();
+		},5000);
+
+		var changeImg = function(i){
+			$('#img').attr('src', urls[i]);
+			console.log(urls[i]);
+		}
+
+	});
+	</script>
+</body>
+</html>

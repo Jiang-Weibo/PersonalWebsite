@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	{% load static %}
+	<script type="text/javascript" src = "{% static 'jQuery/jquery-1.12.4.js' %}"></script>
+	<script type = "text/javascript" src = "{% static 'bootstrap-3.4.1-dist/js/bootstrap.min.js' %}"></script>
+	<link rel="stylesheet" href="{% static 'bootstrap-3.4.1-dist/css/bootstrap.min.css' %}">
+	<link rel="stylesheet" href="{% static 'bootstrap-3.4.1-dist/css/bootstrap-theme.min.css' %}">
+	<title>视频</title>
+</head>
+<body>
+	<div class="container">
+
+		<div class="row">
+			<div class="col-sm-12">
+				<ul class="nav nav-pills nav-justified">
+					<li role="presentation"><a href="{% url 'main' %}">主页</a></li>
+					<li role="presentation"><a href="{% url 'music' %}">音乐</a></li>
+					<li role="presentation"><a href="{% url 'image' %}">图片</a></li>
+					<li role="presentation"  class="active"><a href="{% url 'video' %}">视频</a></li>
+					<li role="presentation"><a href="{% url 'document' %}">文档</a></li>
+					<li role="presentation"><a href="{% url 'homework' %}">作业</a></li>
+				</ul>
+			</div>
+		</div>
+
+
+		<div class="row">
+			<div class="col-md-12" class="center-block">
+				<h1><strong id="videoTitle">#</strong></h1>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<video src="#" id="videoPlayer" type="video/mp4"></video>
+			</div>
+		</div>
+
+
+		
+		<div class="row">
+			<div class="col-md-12">
+				<div class="btn-group btn-group-justified btn-group-md" role="group" aria-label="...">
+					<div class="btn-group" role"group">
+						<button type="button" class="btn btn-default" id="btn1">上一个</button>
+					</div>
+					<div class="btn-group" role"group">
+						<button type="button" class="btn btn-default" id="btn2">播放/暂停</button>
+					</div>
+					<div class="btn-group" role"group">
+						<button type="button" class="btn btn-default" id="btn3">下一个</button>
+					</div>
+					<div class="btn-group dropup" role"group">
+						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							更多
+							<span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu">
+							<li><a href="#" data-function="fullScreen">全屏</a></li>
+							<li><label for="volume">音量</label><input type="range" id="volume" min="0" max="100" value="100"></li>
+							<li><label for="speed">速度</label><input type="range" id="speed" min="-150" max="200" value="100"></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		{# 进度条 #}
+		<div class="row">
+			<div class="col-md-12">
+				<label for="schedule">进度条</label>
+				<input type="range" id="schedule" min="0" max="100" value="0">
+			</div>
+		</div>
+
+
+	</div>
+
+	<script>
+	var videoUrl;
+	var videoIdx=0;
+	var videoLen=0;
+	$.ajax({
+		url: '/home/getVideo',
+		type: 'GET',
+		dataType: 'json',
+		success: function(data){
+			videoUrl=data;
+			videoLen=Object.keys(videoUrl).length;
+			$('#videoPlayer').attr('src', videoUrl[videoIdx]['url']);
+			$('#videoTitle').text(videoUrl[videoIdx]['video_name']);
+			console.log('len = '+videoLen);
+		}
+	});
+	
+	$('#testBtn').click(function(event) {
+		console.log($('#videoPlayer')[0].duration);
+		
+	});
+	$('#btn1').click(function(event) {
+		videoIdx = (videoIdx-1);
+		if(videoIdx<0) videoIdx=videoLen-1;
+		$('#videoPlayer').attr('src', videoUrl[videoIdx]['url']);
+		$('#videoTitle').text(videoUrl[videoIdx]['video_name']);
+	});
+	$('#btn2').click(function(event) {
+		if($('#videoPlayer')[0].paused){
+			$('#videoPlayer')[0].play();
+		}else{
+			$('#videoPlayer')[0].pause();
+		}
+	});
+	$('#btn3').click(function(event) {
+		videoIdx = (videoIdx+1)%videoLen;
+		$('#videoPlayer').attr('src', videoUrl[videoIdx]['url']);
+		$('#videoTitle').text(videoUrl[videoIdx]['video_name']);
+	});
+	$('[data-function]').click(function(event) {
+		var funcType = $(this).attr('data-function');
+		if(funcType=="fullScreen"){
+			$('#videoPlayer')[0].requestFullscreen();
+		}
+	});
+	$('#volume').change(function(event) {
+		$('#videoPlayer')[0].volume = $(this).val()/100;
+	});
+	$('#speed').change(function(event) {
+		$('#videoPlayer')[0].playbackRate = $(this).val()/100;
+	});
+	$('#schedule').change(function(event) {
+		$('#videoPlayer')[0].currentTime = $('#videoPlayer')[0].duration*$(this).val()/100;
+	});
+	$('#videoPlayer').on('timeupdate', function(event) {
+		$('#schedule').val($(this)[0].currentTime/$(this)[0].duration*100);
+	});
+	</script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	{% load static %}
+	<script type="text/javascript" src = "{% static 'jQuery/jquery-1.12.4.js' %}"></script>
+	<script type = "text/javascript" src = "{% static 'bootstrap-3.4.1-dist/js/bootstrap.min.js' %}"></script>
+	<script type = "text/javascript" src="{% static 'plugins/fileinput.js' %}"></script>
+	<script type = "text/javascript" src = "{% static 'plugins/jqthumb.js' %}"></script>
+
+	<link rel="stylesheet" href="{% static 'bootstrap-3.4.1-dist/css/bootstrap.min.css' %}">
+	<link rel="stylesheet" href="{% static 'bootstrap-3.4.1-dist/css/bootstrap-theme.min.css' %}">
+	<link rel="stylesheet" href="{% static "plugins/fileinput.css" %}">
+	<title>音乐</title>
+
+</head>
+<body>
+	<div class="container">
+		{# 导航条 #}
+		<div class="row">
+			<div class="col-sm-12">
+				<ul class="nav nav-pills nav-justified">
+					<li role="presentation"><a href="{% url 'main' %}">主页</a></li>
+					<li role="presentation"  class="active"><a href="{% url 'music' %}">音乐</a></li>
+					<li role="presentation"><a href="{% url 'image' %}">图片</a></li>
+					<li role="presentation"><a href="{% url 'video' %}">视频</a></li>
+					<li role="presentation"><a href="{% url 'document' %}">文档</a></li>
+					<li role="presentation"><a href="{% url 'homework' %}">作业</a></li>
+				</ul>
+			</div>
+		</div>
+
+
+		{# 专辑图/歌词与歌单 #}
+		<div class="row">
+			{# 专辑图/歌词 #}
+			<div class="col-md-4">
+				<img src="{% static "images/SUMMERWARS1.jpg" %}" alt="加载失败" class="img-circle img-thumbnail" id="album_img" style="width:230px;height:230px">
+			</div>
+			{# 歌单 #}
+			<div class="col-md-5 col-md-offset-2">
+				<div class="list-group pre-scrollable" id="musicList">
+				</div>
+			</div>
+		</div>
+
+
+		{# 歌手与歌名 #}
+		<div class="row">
+			<div class="col-md-7">
+				<div class="text-center" id="musicInfo">歌手——歌名</div>
+			</div>
+			<div class="col-md-5">
+				<div class="btn-group">
+					<form action="{% url 'downloadFile' %}" target="_self" method="post" id="downloadForm">
+						<button type="button" class="btn btn-default" id="btn1">上一首</button>
+						<button type="button" class="btn btn-default" id="btn2">播放/暂停</button>
+						<button type="button" class="btn btn-default" id="btn3">下一首</button>
+						<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal" id="testBtn">
+							上传
+						</button>
+						<input type="text" style="display:none" value="#" name="singer_name" id="form_singer_name">
+						<input type="text" style="display:none" value="#" name="song_name" id="form_song_name">
+						<input type="text" style="display:none" value="music" name="type" id="form_type">
+						<button type="button" class="btn btn-primary" id="btn4">下载</button>
+
+					</form>
+				</div>
+			</div>
+		</div>
+
+
+		<audio  src="#" id="musicPlayer">
+		</audio>
+		<div class="row">
+			<div class="col-md-4">
+				<label for="volume">音量:</label>
+				<input type="range" id="volume" min="0" max="100" data-popup-enabled="true" value="100">
+			</div>
+			<div class="col-md-4">
+				<label for="duration">进度:</label>
+				<input type="range" id="duration" min="0" max="100" value="0">
+			</div>
+		</div>
+	</div>
+
+
+	<!-- Modal -->
+	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+				</div>
+				<div class="modal-body">
+					<input id="musics"  class="file form-control" type="file" multiple name="files" >
+				</div>
+				<div class="modal-footer">
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<script type="text/javascript">
+	
+	var musicUrl;
+	var musicLen;
+	$.ajax({
+		url: '/home/getMusic',
+		type: 'GET',
+		dataType: 'json',
+		success: function(data){
+			console.log("get music success!!");	
+			musicUrl = data;
+			addMusic();
+			bindBtn();
+		}
+	});
+
+	$('#musics').fileinput({
+		uploadUrl:"/home/addMusic",
+		maxFileCount:5,
+		uploadExtraData:{},
+	});
+	//var musicPlay = false;
+	var musicIndex = -1;
+	$('#btn4').click(function(event) {
+		if(musicIndex<0) return false;
+		$('#form_singer_name').val(musicUrl[musicIndex]['singer_name']);
+		$('#form_song_name').val(musicUrl[musicIndex]['song_name']);
+		$
+		$('#downloadForm').submit();
+	});
+	$('#btn3').click(function(event) {
+		musicIndex = (musicIndex+1)%musicLen;
+		$('#musicPlayer').attr('src', musicUrl[musicIndex]['url']);
+	});
+	$('#btn2').click(function(event) {
+		if($('#musicPlayer')[0].paused){
+			$('#musicPlayer')[0].play();
+		}else{
+			$('#musicPlayer')[0].pause();
+		}
+	});
+	$('#btn1').click(function(event) {
+		musicIndex = musicIndex-1;
+		if(musicIndex<0) musicIndex = musicLen-1;
+		$('#musicPlayer').attr('src', musicUrl[musicIndex]['url']);
+	});
+	$('#testBtn').click(function(event) {
+		//console.log('testBtn!'+$('#musicPlayer')[0].currentTime);
+
+	});
+	var addMusic = function(){
+		var i = 0;
+		musicLen = Object.keys(musicUrl).length;
+		for(var key in musicUrl){
+
+			var btn = 
+			'<button type="button" class="list-group-item" data-source-url = "'+
+			musicUrl[key]['url']+
+			'"'+
+			' musicIndex="'+
+			i+
+			'"'+
+			'>'+
+			musicUrl[key]['singer_name']+
+			'&nbsp-&nbsp'+
+			musicUrl[key]['song_name']+
+			'</button>';
+			$('#musicList').append(btn);
+			console.log("url is "+musicUrl[key]['url']);
+			i++;
+		};
+	};
+	var bindBtn = function(){
+		$('[data-source-url]').on('click', function(event) {
+			console.log('btn is pressed!');
+			$('#musicPlayer').attr('src', $(this).attr('data-source-url'));
+			musicIndex = $(this).attr('musicIndex');
+		});
+	};
+	var rho = 1;
+	setInterval(function() {
+		if(!($('#musicPlayer')[0].paused)){
+			$('#album_img')[0].style.transform='rotate(' + rho + 'deg)';
+			$('#album_img')[0].style.transition = '0.1s linear';
+			rho++;
+		}
+	}, 100);
+
+	$('#volume').change(function(event) {
+		$('#musicPlayer')[0].volume = $(this).val()/100;
+	});
+
+	$('#duration').change(function(event) {
+		$('#musicPlayer')[0].currentTime = $('#musicPlayer')[0].duration*$(this).val()/100;
+		//console.log($('#musicPlayer')[0].seekable.start(0)+"~"+$('#musicPlayer')[0].seekable.end(0));
+		//console.log($('#musicPlayer')[0].currentTime);
+	});
+
+	$('#musicPlayer').on('timeupdate', function(event) {
+		//console.log($(this)[0].currentTime);
+		$('#duration').val($(this)[0].currentTime/$(this)[0].duration*100);
+		$('#musicInfo').text(musicUrl[musicIndex]['singer_name']+'-'+musicUrl[musicIndex]['song_name']);
+		/* Act on the event */
+	});
+
+	</script>
+
+</body>
+</html>

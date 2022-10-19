@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	{% load static %}
+	<script type="text/javascript" src = "{% static 'jQuery/jquery-1.12.4.js' %}"></script>
+	<script type = "text/javascript" src = "{% static 'bootstrap-3.4.1-dist/js/bootstrap.min.js' %}"></script>
+	<script type = "text/javascript" src="{% static 'plugins/fileinput.js' %}"></script>
+	<link rel="stylesheet" href="{% static 'bootstrap-3.4.1-dist/css/bootstrap.min.css' %}">
+	<link rel="stylesheet" href="{% static 'bootstrap-3.4.1-dist/css/bootstrap-theme.min.css' %}">
+	<link rel="stylesheet" href="{% static "plugins/fileinput.css" %}">
+	<title>test</title>
+</head>
+<body>
+	<div class="file-loading">
+		<input id="input-700" name="files" type="file" multiple>
+	</div>
+
+	<script>
+	$(function() {
+		$("#input-700").fileinput({
+			uploadUrl: "/home/addMusic",
+			maxFileCount: 5
+		});
+	});
+	</script>
+</body>
+</html>
